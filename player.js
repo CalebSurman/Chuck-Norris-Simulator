@@ -46,7 +46,7 @@ var ANIM_IDLE_RIGHT = 5;
 var ANIM_JUMP_RIGHT = 6;
 var ANIM_WALK_RIGHT = 7;
 var ANIM_SHOOT_RIGHT = 8;
-var ANIM_MAX = 9;
+var ANIM_MAX = 6;
 
 Player.prototype.update = function(deltaTime)
 {
@@ -60,11 +60,36 @@ Player.prototype.update = function(deltaTime)
 	if(keyboard.isKeyDown(keyboard.KEY_LEFT) == true) 
 	{
 		left = true;
+		this.direction = LEFT;
+		if(this.sprite.currentAnimation != ANIM_WALK_LEFT);
+			this.sprite.setAnimation(ANIM_WALK_LEFT);
 	}
-	if(keyboard.isKeyDown(keyboard.KEY_RIGHT) == true) 
+	
+	else if(keyboard.isKeyDown(keyboard.KEY_RIGHT) == true) 
 	{
 		right = true;
+		this.direction = RIGHT;
+	if(this.sprite.currentAnimation != ANIM_WALK_RIGHT)
+		this.sprite.setAnimation(ANIM_WALK_RIGHT);
 	}
+	
+	else 
+		{
+			if (this.jumping == false && this.falling == false)
+			{
+				if(this.direction == LEFT)
+				{
+					if(this.sprite.currentAnimation != ANIM_IDLE_LEFT)
+					this.sprite.setAnimation(ANIM_IDLE_LEFT);
+				}
+				else
+				{
+					if(this.sprite.currentAnimation != ANIM_IDLE_RIGHT)
+					this.sprite.setAnimation(ANIM_IDLE_RIGHT);
+				}
+			}
+		}
+	
 	if(keyboard.isKeyDown(keyboard.KEY_SPACE) == true) 
 	{
 		jump = true;
@@ -88,6 +113,10 @@ Player.prototype.update = function(deltaTime)
 	{
 		ddy = ddy - JUMP; // apply an instantaneous (large) vertical impulse
 		this.jumping = true;
+		if(this.direction == LEFT)
+			this.sprite.setAnimation(ANIM_JUMP_LEFT)
+		else
+			this.sprite.setAnimation(ANIM_JUMP_RIGHT)
 	}
 	
 	// calculate the new position and velocity:
@@ -175,9 +204,4 @@ Player.prototype.update = function(deltaTime)
 Player.prototype.draw = function()
 {
 	this.sprite.draw(context, this.position.x, this.position.y);
-	context.save();
-		context.translate(this.x, this.y);
-		context.rotate(this.rotation);
-		context.drawImage(this.image, -this.width/2, -this.height/2);
-	context.restore();
 }
