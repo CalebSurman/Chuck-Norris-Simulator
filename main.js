@@ -76,6 +76,9 @@ var keyboard = new Keyboard();
 var tileset = document.createElement("img");
 tileset.src = "tileset.png";
 
+var musicBackground;
+var sfxFire;
+
 
 function cellAtPixelCoord(layer, x, y)
 {
@@ -210,11 +213,13 @@ function run()
 	
 	context.fillStyle = "#ccc";		
 	context.fillRect(0, 0, canvas.width, canvas.height);
-	drawMap();
+	
 	
 	var deltaTime = getDeltaTime();
 	
 	player.update(deltaTime);
+	
+	drawMap();
 	player.draw();
 	
 		
@@ -234,7 +239,28 @@ function run()
 	context.fillText("FPS: " + fps, 5, 20, 100);
 }
 
-initialize();
+function initialize() 
+{
+	musicBackground = new Howl(
+	{
+		urls: ["background.ogg"],
+		loop: true,
+		buffer: true,
+		volume: 0.5
+		
+	} );
+	musicBackground.play();
+	
+	sfxFire = new Howl(
+	{
+		urls: ["fireEffect.ogg"],
+		buffer: true,
+		volume: 1,
+		onend: function() {
+			isSfxPlaying = false;
+		}
+	} );
+};
 
 //-------------------- Don't modify anything below here
 
