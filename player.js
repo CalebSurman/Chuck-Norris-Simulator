@@ -118,7 +118,7 @@ Player.prototype.update = function(deltaTime)
 	
 	if(this.cooldownTimer>0)
 	{
-		this.cooldownTimer -= deltaTIme;
+		this.cooldownTimer -= deltaTime;
 	}
 	if(keyboard.isKeyDown(keyboard.KEY_SPACE) == true && this.cooldownTimer <=0)
 	{
