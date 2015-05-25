@@ -76,7 +76,11 @@ var keyboard = new Keyboard();
 var tileset = document.createElement("img");
 tileset.src = "tileset.png";
 
+var score = 0;
+var lives = 3;
 
+var heartImage = document.createElement ("img");
+heartImage.src = "heart.png";
 
 
 function cellAtPixelCoord(layer, x, y)
@@ -257,6 +261,18 @@ function run()
 	context.fillStyle = "#f00";
 	context.font="14px Arial";
 	context.fillText("FPS: " + fps, 5, 20, 100);
+	
+	// score
+	context.fillStyle = "0008FF";
+	context.font = "28px Impact";
+	var scoreText = "Score: " + score;
+	context.fillText(scoreText, SCREEN_WIDTH - 170, 35);
+	
+	// life counter
+	for(var i=0; i<lives; i++)
+	{
+		context.drawImage(heartImage, 60 + ((heartImage.width+2)*i), 10);
+	}
 }
 
 
