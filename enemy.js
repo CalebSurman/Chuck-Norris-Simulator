@@ -1,4 +1,4 @@
-var Player = function() 
+/*var Enemy = function();
 {
 	this.sprite = new  Sprite("ChuckNorris.png");
 	// idling left
@@ -65,15 +65,30 @@ var ANIM_WALK_RIGHT = 7;
 var ANIM_SHOOT_RIGHT = 8;
 var ANIM_MAX = 9;
 
-var PLAYER_SPEED = 300;
+var ENEMY_SPEED = 300; */
 
-Player.prototype.update = function(deltaTime)
+var Enemy = function(x, y)
+{
+	this.sprite = new Sprite("bat.png");
+	this.sprite.buildAnimation(2, 1, 88, 94, 0.3, [0,1]);
+	this.sprite.setAnimationOffset(0, -35, -45);
+	
+	this.position = new Vector2();
+	this.position.set(x, y);
+	
+	this.velocity = new Vector2();
+	
+	this.moveRight = true;
+	this.pause = 0;
+}
+
+Enemy.prototype.update = function(deltaTime)
 {
 	this.sprite.update(deltaTime);
 	
 	if(this.pause > 0)
 	{
-		this.pause -= dt);
+		this.pause -= (dt);
 	}
 	else
 	{
@@ -122,7 +137,7 @@ Player.prototype.update = function(deltaTime)
 	}
 }
 
-Player.prototype.draw = function()
+Enemy.prototype.draw = function()
 {
 	this.sprite.draw(context, this.position.x - worldOffsetX , this.position.y);
 }
