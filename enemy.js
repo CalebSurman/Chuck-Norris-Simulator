@@ -87,8 +87,8 @@ Enemy.prototype.update = function(deltaTime)
 	this.sprite.update(deltaTime);
 	
 	if(this.pause > 0)
-	{
-		this.pause -= (dt);
+	{				// suspicious
+		this.pause -= (deltaTime);
 	}
 	else
 	{
@@ -130,9 +130,9 @@ Enemy.prototype.update = function(deltaTime)
 				this.pause = 0.5;
 			}
 		}
-		
-		this.position.x = Math.floor(this.position.x + (dt * this.velocity.x));
-		this.velocity.x = bound(this.velocity.x + (dt * ddx),
+													// here
+		this.position.x = Math.floor(this.position.x + (deltaTime * this.velocity.x));
+		this.velocity.x = bound(this.velocity.x + (deltaTime * ddx),
 									-ENEMY_MAXDX, ENEMY_MAXDX);
 	}
 }

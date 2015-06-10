@@ -126,6 +126,7 @@ Player.prototype.update = function(deltaTime)
 		this.cooldownTimer = 0.3;
 		
 		// Shoot a bullet
+		
 	}
 
 	var wasleft = this.velocity.x < 0;

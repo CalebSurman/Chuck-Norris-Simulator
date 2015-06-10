@@ -128,13 +128,18 @@ function bound(value, min, max)
 	return value;
 }
 
-// variables for layers
-var LAYER_COUNT = 3;
+/* var LAYER_COUNT = 4;
 var LAYER_BACKGROUND = 3;
 var LAYER_PLATFORMS = 0;
-var LAYER_LADDERS = 1;
+var LAYER_ENEMY = 1;
+var LAYER_EXIT = 2;*/
 
-var LAYER_OBJECT_ENEMIES = 3;
+// variables for layers
+var LAYER_COUNT = 2;
+var LAYER_BACKGROUND = 0;
+var LAYER_PLATFORMS = 1;
+
+var LAYER_OBJECT_ENEMIES = 2;
 var LAYER_OBJECT_TRIGGERS = 4;
 
 var worldOffsetX =0;
@@ -273,6 +278,7 @@ function run()
 		enemies[i].draw(deltaTime);
 	}	
 	
+
 	
 	player.update(deltaTime);
 	
@@ -306,6 +312,37 @@ function run()
 	{
 		context.drawImage(heartImage, 60 + ((heartImage.width+2)*i), 10);
 	}
+	
+	/*// bullets array
+	var hit=false;
+	for(var i=0; i<bullets.length; i++)
+	{
+		bullets[i].update(deltaTime);
+		if( bullets[i].position.x - worldOffsetX < 0 || 
+				bullets[i].position.x - worldOffsetX > SCREEN_WIDTH)
+		{
+			hit = true;
+		}
+		
+		for(var j=0; j<enemies.length; j++)
+		{
+			if(intersects( bullets[i].position.x, bullets[i].position.y, TILE, TILE, 
+				enemies[j].position.x, enemies[j].position.y, TILE, TILE) == true)
+			{
+				// kill both the bullet and the enemy
+				enemies.splice(j, 1);
+				hit = true;
+				// increment the player score
+				score += 1;
+				break;
+			}
+		}
+		if(hit == true)
+		{
+			bullets.splice(i, 1);
+			break;
+		}
+	}*/
 }
 
 
