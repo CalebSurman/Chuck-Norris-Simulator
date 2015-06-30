@@ -27,7 +27,7 @@ var Player = function()
 		[65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78]);
 	//shoot right
 	this.sprite.buildAnimation(12, 8, 165, 126, 0.05,
-	[79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92]);
+		[79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92]);
 
 		
 	for(var i=0; i<ANIM_MAX; i++)
@@ -66,6 +66,8 @@ var ANIM_SHOOT_RIGHT = 8;
 var ANIM_MAX = 9;
 
 var PLAYER_SPEED = 300;
+
+var bullets = [];
 
 Player.prototype.update = function(deltaTime)
 {
@@ -126,7 +128,33 @@ Player.prototype.update = function(deltaTime)
 		this.cooldownTimer = 0.3;
 		
 		// Shoot a bullet
-		
+		var	tempBullet = new Bullet((this.position.x), this.position.y);
+		if(this.direction == LEFT)
+		{
+			left = true;
+			if(this.sprite.currentAnimation != ANIM_SHOOT_LEFT)
+				this.sprite.setAnimation(ANIM_SHOOT_LEFT);
+		}
+		else
+		{
+			right = true;
+			if(this.sprite.currentAnimation != ANIM_SHOOT_RIGHT)
+				this.sprite.setAnimation(ANIM_SHOOT_RIGHT);
+		}
+
+		if(right == true)
+		{
+			tempBullet.velocity.x = 400; //set direction for bullet
+			tempBullet.position.x += 80; //set position of bullet to make it come out of gun not belly
+		}
+		else
+		{
+			tempBullet.velocity.x = -400; //set direction for bullet
+			tempBullet.position.x -= 50; //set position of bullet to make it come out of gun not bell
+		}
+									
+		cooldownTimer = 0.5;			//set bullet timer to 0.5 seconds
+		bullets.push(tempBullet);		//add bullet to bullets array
 	}
 
 	var wasleft = this.velocity.x < 0;
@@ -232,6 +260,10 @@ Player.prototype.update = function(deltaTime)
 			 this.position.x = tileToPixel(tx + 1);
 			 this.velocity.x = 0; 				// stop horizontal velocity
 		}
+	}
+	if(cellAtTileCoord(LAYER_OBJECT_TRIGGERS, tx, ty) == true)
+	{
+		gameState = STATE_GAMEWIN
 	}
 }
 

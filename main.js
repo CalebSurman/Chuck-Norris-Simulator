@@ -40,6 +40,13 @@ var fps = 0;
 var fpsCount = 0;
 var fpsTime = 0;
 
+// game state variables
+var STATE_GAME = 0;
+var STATE_GAMEOVER = 1;
+var STATE_GAMEWIN = 2;
+
+var gameState = STATE_GAME
+
 // the variables for the tile set are declared here
 var LAYER_COUNT = 3;
 var MAP = {tw: 80, th: 15};
@@ -71,6 +78,8 @@ chuckNorris.src = "hero.png";
 
 var player = new Player();
 var keyboard = new Keyboard();
+var enemy = new Enemy();
+var position = new Vector2();
 
 // load the image to use for the level tiles
 var tileset = document.createElement("img");
@@ -84,6 +93,7 @@ heartImage.src = "heart.png";
 
 // variables for enemy
 var enemies = [];
+var bullets = [];
 
 var ENEMY_MAXDX = METER * 5;
 var ENEMY_ACCEL = ENEMY_MAXDX * 2;
@@ -128,19 +138,20 @@ function bound(value, min, max)
 	return value;
 }
 
-/* var LAYER_COUNT = 4;
-var LAYER_BACKGROUND = 3;
-var LAYER_PLATFORMS = 0;
-var LAYER_ENEMY = 1;
-var LAYER_EXIT = 2;*/
+/*var LAYER_COUNT = 2;
+var LAYER_BACKGROUND = 0;
+var LAYER_PLATFORMS = 1;
+
+var LAYER_OBJECT_ENEMIES = 2;
+var LAYER_OBJECT_TRIGGERS = 3;*/
 
 // variables for layers
 var LAYER_COUNT = 2;
 var LAYER_BACKGROUND = 0;
 var LAYER_PLATFORMS = 1;
 
-var LAYER_OBJECT_ENEMIES = 2;
-var LAYER_OBJECT_TRIGGERS = 4;
+var LAYER_OBJECT_ENEMIES = 3;
+var LAYER_OBJECT_TRIGGERS = 2;
 
 var worldOffsetX =0;
 function drawMap()
@@ -238,6 +249,29 @@ function initialize()
 				idx++;
 			}
 		}
+		// trigger layer in collision map
+		cells[LAYER_OBJECT_TRIGGERS] = [];
+		idx = 0;
+		for(var y = 0; y < level1.layers[LAYER_OBJECT_TRIGGERS].height; y++)
+		{
+			cells[LAYER_OBJECT_TRIGGERS][y] = [];
+			for(var x = 0; x < level1.layers[LAYER_OBJECT_TRIGGERS].width; x++)
+			{
+				if(level1.layers[LAYER_OBJECT_TRIGGERS].data[idx] != 0)
+				{
+					cells[LAYER_OBJECT_TRIGGERS][y][x] = 1;
+					cells[LAYER_OBJECT_TRIGGERS][y-1][x] = 1;
+					cells[LAYER_OBJECT_TRIGGERS][y-1][x+1] = 1;
+					cells[LAYER_OBJECT_TRIGGERS][y][x+1] = 1;
+				}
+				else if(cells[LAYER_OBJECT_TRIGGERS][y][x] != 1)
+				{
+					//if we haven't set this cell's value, then set it to 0 now
+					cells[LAYER_OBJECT_TRIGGERS][y][x] = 0;
+				}
+				idx++;
+			}
+		}
 	}
 	
 	musicBackground = new Howl(
@@ -255,11 +289,22 @@ function initialize()
 		urls: ["fireEffect.ogg"],
 		buffer: true,
 		volume: 1,
-		onend: function() {
+		onend: function() 
+		{
 			isSfxPlaying = false;
 		}
 	} );
 	
+}
+
+function intersects (x1, y1, w1, h1, x2, y2, w2, h2)
+{
+	if(y2 + h2 < y1 || x2 + w2 < x1 ||
+		x2 > x1 + w1 || y2 > y1 + h1)
+		{
+			return false;
+		}
+		return true;
 }
 
 function run()
@@ -268,23 +313,40 @@ function run()
 	context.fillStyle = "#ccc";		
 	context.fillRect(0, 0, canvas.width, canvas.height);
 	
-	
 	var deltaTime = getDeltaTime();
 	
+	switch (gameState)
+	{
+		case STATE_GAME:
+			runGame(deltaTime)
+			break;
+		case STATE_GAMEOVER:
+			runGameOver(deltaTime)
+			break;
+		case STATE_GAMEWIN:
+			runGameWin(deltaTime)
+			break;
+	}
+}
+
+function runGame(deltaTime)
+{
 	
 	for(var i=0; i<enemies.length; i++)
 	{
 		enemies[i].update(deltaTime);
-		enemies[i].draw(deltaTime);
 	}	
-	
-
 	
 	player.update(deltaTime);
 	
 	
 	drawMap();
-	player.draw();
+	player.draw(deltaTime);
+	
+	for(var i=0; i<enemies.length; i++)
+	{
+		enemies[i].draw(deltaTime);
+	}	
 		
 	// update the frame counter 
 	fpsTime += deltaTime;
@@ -311,9 +373,14 @@ function run()
 	for(var i=0; i<lives; i++)
 	{
 		context.drawImage(heartImage, 60 + ((heartImage.width+2)*i), 10);
+		// add code for life decrementation
+		/* if(player.isDead) == true
+		{
+			splice.lives(i, 1)
+		}*/
 	}
 	
-	/*// bullets array
+	// bullets array
 	var hit=false;
 	for(var i=0; i<bullets.length; i++)
 	{
@@ -342,7 +409,26 @@ function run()
 			bullets.splice(i, 1);
 			break;
 		}
+	}
+	
+	/*if (player.isDead) == true
+	{
+		gameState = STATE_GAMEOVER
 	}*/
+}
+
+function runGameOver()
+{
+	context.fillStyle = "#ff0000";
+	context.font = "70px Arial";
+	context.fillText("GAME OVER", 50, 240);
+}
+
+function runGameWin()
+{
+	context.fillStyle = "#ff0000";
+	context.font = "70px Arial";
+	context.fillText("You Win!", 50, 240);
 }
 
 
