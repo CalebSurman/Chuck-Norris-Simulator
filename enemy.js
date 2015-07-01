@@ -18,7 +18,7 @@ Enemy.prototype.update = function(deltaTime)
 	this.sprite.update(deltaTime);
 	
 	if(this.pause > 0)
-	{				// suspicious
+	{
 		this.pause -= deltaTime;
 	}
 	else
