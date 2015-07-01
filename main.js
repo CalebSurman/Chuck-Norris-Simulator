@@ -332,9 +332,13 @@ function runGame(deltaTime)
 	{
 		enemies[i].update(deltaTime);
 	}	
-	
+	//drawimg
 	drawMap();
 	player.draw(deltaTime);
+	for(var i=0; i<bullets.length; i++)
+	{
+		bullets[i].draw(deltaTime);
+	}
 	
 	for(var i=0; i<enemies.length; i++)
 	{
@@ -440,14 +444,14 @@ function runGameOver()
 {
 	context.fillStyle = "#ff0000";
 	context.font = "70px Arial";
-	context.fillText("GAME OVER", 50, 240);
+	context.fillText("GAME OVER", 100, 240);
 }
 
 function runGameWin()
 {
 	context.fillStyle = "#ff0000";
 	context.font = "70px Arial";
-	context.fillText("You Win!", 50, 240);
+	context.fillText("You Win!", 180, 240);
 }
 
 
