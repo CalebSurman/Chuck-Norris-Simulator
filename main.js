@@ -111,7 +111,9 @@ function cellAtPixelCoord(layer, x, y)
 
 function cellAtTileCoord(layer, tx, ty)
 {
-	if(tx<0 || tx>=MAP.tw || ty<0)
+	if(layer == LAYER_OBJECT_TRIGGERS && (tx<0 || tx>=MAP.tw || ty<0))
+		return 0;
+	else if(tx<0 || tx>=MAP.tw || ty<0)
 		return 1;
 	// let the player drop off the bottom of the screen (this means death)
 	if(ty>=MAP.th)
@@ -137,13 +139,6 @@ function bound(value, min, max)
 		return max;
 	return value;
 }
-
-/*var LAYER_COUNT = 2;
-var LAYER_BACKGROUND = 0;
-var LAYER_PLATFORMS = 1;
-
-var LAYER_OBJECT_ENEMIES = 2;
-var LAYER_OBJECT_TRIGGERS = 3;*/
 
 // variables for layers
 var LAYER_COUNT = 2;
@@ -233,44 +228,44 @@ function initialize()
 				idx++;
 			}
 		}
-		//add enemies
-		idx = 0;
-		for(var y = 0; y < level1.layers[LAYER_OBJECT_ENEMIES].height; y++)
+	}
+	//add enemies
+	idx = 0;
+	for(var y = 0; y < level1.layers[LAYER_OBJECT_ENEMIES].height; y++)
+	{
+		for (var x = 0; x < level1.layers[LAYER_OBJECT_ENEMIES].width; x++)
 		{
-			for (var x = 0; x < level1.layers[LAYER_OBJECT_ENEMIES].width; x++)
+			if(level1.layers[LAYER_OBJECT_ENEMIES].data[idx] != 0)
 			{
-				if(level1.layers[LAYER_OBJECT_ENEMIES].data[idx] != 0)
-				{
-					var px = tileToPixel(x);
-					var py = tileToPixel(y);
-					var e = new Enemy(px, py);
-					enemies.push(e);
-				}
-				idx++;
+				var px = tileToPixel(x);
+				var py = tileToPixel(y);
+				var e = new Enemy(px, py);
+				enemies.push(e);
 			}
+			idx++;
 		}
-		// trigger layer in collision map
-		cells[LAYER_OBJECT_TRIGGERS] = [];
-		idx = 0;
-		for(var y = 0; y < level1.layers[LAYER_OBJECT_TRIGGERS].height; y++)
+	}
+	// trigger layer in collision map
+	cells[LAYER_OBJECT_TRIGGERS] = [];
+	idx = 0;
+	for(var y = 0; y < level1.layers[LAYER_OBJECT_TRIGGERS].height; y++)
+	{
+		cells[LAYER_OBJECT_TRIGGERS][y] = [];
+		for(var x = 0; x < level1.layers[LAYER_OBJECT_TRIGGERS].width; x++)
 		{
-			cells[LAYER_OBJECT_TRIGGERS][y] = [];
-			for(var x = 0; x < level1.layers[LAYER_OBJECT_TRIGGERS].width; x++)
+			if(level1.layers[LAYER_OBJECT_TRIGGERS].data[idx] != 0)
 			{
-				if(level1.layers[LAYER_OBJECT_TRIGGERS].data[idx] != 0)
-				{
-					cells[LAYER_OBJECT_TRIGGERS][y][x] = 1;
-					cells[LAYER_OBJECT_TRIGGERS][y-1][x] = 1;
-					cells[LAYER_OBJECT_TRIGGERS][y-1][x+1] = 1;
-					cells[LAYER_OBJECT_TRIGGERS][y][x+1] = 1;
-				}
-				else if(cells[LAYER_OBJECT_TRIGGERS][y][x] != 1)
-				{
-					//if we haven't set this cell's value, then set it to 0 now
-					cells[LAYER_OBJECT_TRIGGERS][y][x] = 0;
-				}
-				idx++;
+				cells[LAYER_OBJECT_TRIGGERS][y][x] = 1;
+				cells[LAYER_OBJECT_TRIGGERS][y-1][x] = 1;
+				cells[LAYER_OBJECT_TRIGGERS][y-1][x+1] = 1;
+				cells[LAYER_OBJECT_TRIGGERS][y][x+1] = 1;
 			}
+			else if(cells[LAYER_OBJECT_TRIGGERS][y][x] != 1)
+			{
+				//if we haven't set this cell's value, then set it to 0 now
+				cells[LAYER_OBJECT_TRIGGERS][y][x] = 0;
+			}
+			idx++;
 		}
 	}
 	
@@ -331,14 +326,12 @@ function run()
 
 function runGame(deltaTime)
 {
+	player.update(deltaTime);
 	
 	for(var i=0; i<enemies.length; i++)
 	{
 		enemies[i].update(deltaTime);
 	}	
-	
-	player.update(deltaTime);
-	
 	
 	drawMap();
 	player.draw(deltaTime);
@@ -369,15 +362,41 @@ function runGame(deltaTime)
 	var scoreText = "Score: " + score;
 	context.fillText(scoreText, SCREEN_WIDTH - 170, 35);
 	
+	//enemy + player collison
+	for(var j=0; j<enemies.length; j++)
+		{
+			if(player.isDead == false)
+			{
+				if(intersects(enemies[j].position.x, enemies[j].position.y, TILE, TILE,
+					player.position.x, player.position.y, player.width/2, player.height/2)== true)
+				{
+				player.isDead == true;
+				lives -= 1;
+				player.position.set(9*35, 0*35);
+				break;
+				}
+			}
+		}
+	
 	// life counter
 	for(var i=0; i<lives; i++)
 	{
-		context.drawImage(heartImage, 60 + ((heartImage.width+2)*i), 10);
-		// add code for life decrementation
-		/* if(player.isDead) == true
+		context.drawImage(heartImage, 60 + ((heartImage.width+2)*i), 10);	
+	}
+	//life decrementation
+	if(player.isDead == false)
+	{
+		if(player.position.y > SCREEN_HEIGHT)
 		{
-			splice.lives(i, 1)
-		}*/
+				player.isDead == true;
+				lives -= 1;
+				player.position.set(9*35, 0*35);
+		}
+		if(lives == 0)
+		{
+			gameState = STATE_GAMEOVER;
+			return;
+		}		
 	}
 	
 	// bullets array
@@ -411,10 +430,10 @@ function runGame(deltaTime)
 		}
 	}
 	
-	/*if (player.isDead) == true
+	if (player.isDead == true)
 	{
 		gameState = STATE_GAMEOVER
-	}*/
+	}
 }
 
 function runGameOver()

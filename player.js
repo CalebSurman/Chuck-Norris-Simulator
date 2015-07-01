@@ -46,6 +46,8 @@ var Player = function()
 	this.falling = true;
 	this.jumping = false;
 	
+	this.isDead = false
+	
 	this.direction = LEFT;
 	
 	this.cooldownTimer = 0;
@@ -68,6 +70,7 @@ var ANIM_MAX = 9;
 var PLAYER_SPEED = 300;
 
 var bullets = [];
+var lives = [];
 
 Player.prototype.update = function(deltaTime)
 {
